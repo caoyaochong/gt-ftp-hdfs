@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
@@ -46,7 +47,7 @@ public class HdfsOverFtpServer {
 	 */
 	private static void loadConfig() throws IOException {
 		Properties props = new Properties();
-		props.load(new FileInputStream(loadResource("hdfs-over-ftp.properties")));
+		props.load(new FileInputStream(loadResource("config/hdfs-over-ftp.properties")));
 
 		try {
 			port = Integer.parseInt(props.getProperty("port"));
@@ -111,7 +112,7 @@ public class HdfsOverFtpServer {
 		server.getListener("default").setPort(port);
 
 		HdfsUserManager userManager = new HdfsUserManager();
-		final File file = loadResource("users.properties");
+		final File file = loadResource("config/users.properties");
 
 		userManager.setFile(file);
 
@@ -122,20 +123,10 @@ public class HdfsOverFtpServer {
 		server.start();
 	}
 
-	private static File loadResource(String resourceName) {
-		// final URL resource =
-		// HdfsOverFtpServer.class.getClassLoader().getResource(resourceName);
-		InputStream inputStream = HdfsOverFtpServer.class.getClassLoader().getResourceAsStream(resourceName);
-		if (inputStream == null) {
-			throw new RuntimeException("Resource not found: " + resourceName);
-		}
+	private static File loadResource(String resourceName) throws MalformedURLException {
 
-		File temp = new File("temp.trans");
-		try {
-			InputStream2File(inputStream, temp);
-		} catch (Exception e) {
-			throw new RuntimeException("Read temp file error: " + resourceName);
-		}
+		File temp = new File(System.getProperty("user.dir") + "/" +  resourceName);
+		
 		return temp;
 	}
 
